@@ -1,13 +1,9 @@
 # HackerRank Solutions
 
-My solutions to HackerRank problems, primarily written in Java.
+My solutions to HackerRank problems, primarily implemented in Java.
 
 This repository documents my journey in improving problem-solving,
 algorithms, data structures, and SQL skills.
-
-## 📊 Progress
-
-Solutions are continuously added as I solve new problems.
 
 ## 💻 Languages
 
@@ -25,11 +21,20 @@ Solutions are continuously added as I solve new problems.
 - Hashing
 - SQL
 
-## 📂 Organization
+<!-- STATS:START -->
 
-Solutions are organized by:
+## 📊 Progress
 
-**Language → Difficulty → Problem**
+| Metric | Count |
+|---|---:|
+| Total Problems | 0 |
+| Java | 0 |
+| SQL | 0 |
+| Easy | 0 |
+| Medium | 0 |
+| Hard | 0 |
+
+<!-- STATS:END -->
 
 ## 🎯 Goal
 
