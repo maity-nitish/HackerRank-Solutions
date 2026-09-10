@@ -16,8 +16,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Update README
-        shell: bash
+      - name: Update README statistics
         run: |
           python3 <<'PY'
           from pathlib import Path
@@ -25,27 +24,30 @@ jobs:
 
           root = Path("solutions")
 
-          total = java = sql = easy = medium = hard = 0
-          problems = []
+          total = 0
+          java = 0
+          sql = 0
+          easy = 0
+          medium = 0
+          hard = 0
 
           if root.exists():
-              for path in root.rglob("*"):
-                  if not path.is_file():
+              for file in root.rglob("*"):
+                  if not file.is_file():
                       continue
 
-                  if path.suffix.lower() not in {".java", ".sql", ".py", ".cpp", ".c"}:
+                  if file.suffix.lower() not in {".java", ".sql"}:
                       continue
 
                   total += 1
 
-                  text = path.read_text(errors="ignore").lower()
-
-                  if path.suffix.lower() == ".java":
+                  if file.suffix.lower() == ".java":
                       java += 1
-                  elif path.suffix.lower() == ".sql":
+
+                  if file.suffix.lower() == ".sql":
                       sql += 1
 
-                  parts = [p.lower() for p in path.parts]
+                  parts = [p.lower() for p in file.parts]
 
                   if "easy" in parts:
                       easy += 1
@@ -54,32 +56,30 @@ jobs:
                   elif "hard" in parts:
                       hard += 1
 
-                  problems.append(path)
-
           readme = Path("README.md")
 
           if readme.exists():
               content = readme.read_text()
           else:
-              content = "# HackerRank Solutions\n\n"
+              content = "# HackerRank Solutions\n"
 
           start = "<!-- STATS:START -->"
           end = "<!-- STATS:END -->"
 
           stats = f"""<!-- STATS:START -->
 
-## 📊 Progress
+          ## 📊 Progress
 
-| Metric | Count |
-|---|---:|
-| Total Problems | {total} |
-| Java | {java} |
-| SQL | {sql} |
-| Easy | {easy} |
-| Medium | {medium} |
-| Hard | {hard} |
+          | Metric | Count |
+          |---|---:|
+          | Total Problems | {total} |
+          | Java | {java} |
+          | SQL | {sql} |
+          | Easy | {easy} |
+          | Medium | {medium} |
+          | Hard | {hard} |
 
-<!-- STATS:END -->"""
+          <!-- STATS:END -->"""
 
           pattern = re.compile(
               re.escape(start) + r".*?" + re.escape(end),
@@ -102,7 +102,7 @@ jobs:
           git add README.md
 
           if git diff --cached --quiet; then
-            echo "No README changes."
+            echo "No changes to README"
           else
             git commit -m "Update README statistics"
             git push
