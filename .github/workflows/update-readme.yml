@@ -1,4 +1,4 @@
-name: AI Update README
+name: Update README
 
 on:
   push:
@@ -7,7 +7,6 @@ on:
 
 permissions:
   contents: write
-  pull-requests: write
 
 jobs:
   update-readme:
@@ -16,13 +15,95 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
-      - name: Update README with AI
-        uses: busycaesar/always-readme@v0.1.1
-        with:
-          openai-api-key: ${{ secrets.OPENAI_API_KEY }}
-          openai-org-id: ${{ secrets.OPENAI_ORG_ID }}
-          openai-project: ${{ secrets.OPENAI_PROJECT }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Update README
+        shell: bash
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+          import re
+
+          root = Path("solutions")
+
+          total = java = sql = easy = medium = hard = 0
+          problems = []
+
+          if root.exists():
+              for path in root.rglob("*"):
+                  if not path.is_file():
+                      continue
+
+                  if path.suffix.lower() not in {".java", ".sql", ".py", ".cpp", ".c"}:
+                      continue
+
+                  total += 1
+
+                  text = path.read_text(errors="ignore").lower()
+
+                  if path.suffix.lower() == ".java":
+                      java += 1
+                  elif path.suffix.lower() == ".sql":
+                      sql += 1
+
+                  parts = [p.lower() for p in path.parts]
+
+                  if "easy" in parts:
+                      easy += 1
+                  elif "medium" in parts:
+                      medium += 1
+                  elif "hard" in parts:
+                      hard += 1
+
+                  problems.append(path)
+
+          readme = Path("README.md")
+
+          if readme.exists():
+              content = readme.read_text()
+          else:
+              content = "# HackerRank Solutions\n\n"
+
+          start = "<!-- STATS:START -->"
+          end = "<!-- STATS:END -->"
+
+          stats = f"""<!-- STATS:START -->
+
+## 📊 Progress
+
+| Metric | Count |
+|---|---:|
+| Total Problems | {total} |
+| Java | {java} |
+| SQL | {sql} |
+| Easy | {easy} |
+| Medium | {medium} |
+| Hard | {hard} |
+
+<!-- STATS:END -->"""
+
+          pattern = re.compile(
+              re.escape(start) + r".*?" + re.escape(end),
+              re.DOTALL
+          )
+
+          if pattern.search(content):
+              content = pattern.sub(stats, content)
+          else:
+              content += "\n\n" + stats + "\n"
+
+          readme.write_text(content)
+          PY
+
+      - name: Commit README changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add README.md
+
+          if git diff --cached --quiet; then
+            echo "No README changes."
+          else
+            git commit -m "Update README statistics"
+            git push
+          fi
