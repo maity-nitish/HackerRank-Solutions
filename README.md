@@ -27,10 +27,10 @@ algorithms, data structures, and SQL skills.
 
 | Metric | Count |
 |---|---:|
-| Total Problems | 11 |
-| Java | 11 |
+| Total Problems | 12 |
+| Java | 12 |
 | SQL | 0 |
-| Easy | 3 |
+| Easy | 4 |
 | Medium | 8 |
 | Hard | 0 |
 
